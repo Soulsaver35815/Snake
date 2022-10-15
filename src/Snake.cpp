@@ -11,35 +11,25 @@ using namespace std;
 //and initializes new node as head, snakeState(direction) and changedState
 Snake::Snake(int init_x, int init_y, unsigned int length, unsigned int food_count): 
 m_settings_values(SettingsValues::getInstance()),
-head(new Node(init_y, init_x, W))
+m_nodes({Node(init_y, init_x, W)})
 {  
     //tail = head (only 1 node exists)
-    head->prev = NULL;
-    tail = head;
     initSnake(length);
     initFood(food_count);
 }
 
 Snake::~Snake()
-{
-    Node* temp = head;
-    while (head != NULL)
-    {
-        head = head->next;
-        delete temp;
-        temp = head;
-    }  
-}
+{}
 
 //function to add head for movement/growth food pointer as arguments
 bool Snake::addHead(WindowInstance& new_instance)
 {
     //change texture of old head to normal body texture
 
-    head->changeTexture(m_snake_state, false);
+    m_nodes.front().changeTexture(m_snake_state, false);
 
-    int temp_y = head->m_node_pos_y;
-    int temp_x = head->m_node_pos_x;
+    int temp_y = m_nodes.front().m_node_pos_y;
+    int temp_x = m_nodes.front().m_node_pos_x;
     switch(m_snake_state)
     {
         //position of new head gets calculated using old heads position and moving direction
@@ -47,13 +37,14 @@ bool Snake::addHead(WindowInstance& new_instance)
         case A: temp_x -= TILE_SIZE; break;
         case S: temp_y += TILE_SIZE; break;
         case D: temp_x += TILE_SIZE; break;
+        default: break;
     }
 
     //** CRASH WHEN HITTING WALL **//
     //if new head is created outside the window(player crashed into border) true is returned
     if(*m_settings_values.getWallCrash() == true)
     {
-        if( temp_x < 0|
+        if(temp_x < 0|
         temp_x >= 1000|
         temp_y < 0|
         temp_y >= 1000) new_instance = EGameOverMenu;
@@ -67,40 +58,32 @@ bool Snake::addHead(WindowInstance& new_instance)
         else if(temp_y >= 1000) temp_y -= 1000;
     }
 
+    m_nodes.front().setPrevState(m_snake_state);
     //new head gets created at calculated coordinates. All pointers are set to link the head to the list
-    head->prev = new Node(temp_y, temp_x, m_snake_state);
-    head->prev->next = head;
-    head = head->prev;
-    head->prev = NULL;
+    m_nodes.push_front({temp_y, temp_x, m_snake_state});
     
     //bounds for head and body to check for collition when creating the new head
-    FloatRect head_bound = head->m_node.getGlobalBounds();
+    FloatRect head_bound = m_nodes.front().m_node.getGlobalBounds();
     FloatRect body_bound;
 
     //if the head collides with the food 
     if(checkFoodBounds(head_bound))
     {
-        tail->changeTexture(m_snake_state, true);
+        m_nodes.back().changeTexture(m_snake_state, true);
         return true;
     }
-    else
-    {
-        if(tail->prev->prev != NULL) tail->prev->changeTexture(m_snake_state, true);
-        //tail gets removed only when no food is eaten (snake grows)
-        removeTail();
 
-        //** GAME OVER WHEN SNAKE HITS SNAKE **//
-        if(*m_settings_values.getSelfCrash() == true)
-        {
-            Node* temp = head;
-            while(temp->next != NULL)
-            {
-                temp = temp->next;
-                body_bound = temp->m_node.getGlobalBounds();
-                if(head_bound.intersects(body_bound)) new_instance = EGameOverMenu;
-            }
-        }      
-    }
+    //tail gets removed only when no food is eaten (snake grows)
+    removeTail();
+    if(m_nodes.size() > 1) m_nodes.back().changeTexture(m_snake_state, true);
+
+    //** GAME OVER WHEN SNAKE HITS SNAKE **//
+    if(*m_settings_values.getSelfCrash())
+    {
+        for(auto iter = std::next(m_nodes.begin()); iter != m_nodes.end(); iter++) 
+            if(head_bound.intersects(iter->m_node.getGlobalBounds()))
+                new_instance = EGameOverMenu;
+    }      
     return false;
 }
 
@@ -112,7 +95,7 @@ bool Snake::checkFoodBounds(FloatRect& head_bound)
         {
             if(food.getFoodBounds().intersects(head_bound))
             {
-                food.gotEaten(head, m_food_vec);
+                food.gotEaten(m_nodes, m_food_vec);
                 return_value = true;
             }
         });
@@ -123,7 +106,6 @@ void Snake::initSnake(unsigned int length)
 {   
     unsigned int tail_length = length - 1;
     int delta_y, delta_x;
-    Node* temp = head;
     SnakeState state;
 
     if(tail_length > MAX_INIT_LENGTH - 1) tail_length = MAX_INIT_LENGTH - 1;
@@ -146,14 +128,11 @@ void Snake::initSnake(unsigned int length)
             else state = W;
         }
 
-        temp->next = new Node(head->m_node_pos_y + delta_y * TILE_SIZE, head->m_node_pos_x + delta_x * TILE_SIZE, state);
-        temp->next->prev = temp;
-        temp->next->next = NULL;
-        temp = temp->next;
-        temp->changeTexture(temp->prev->m_node_state, false);
+        SnakeState& old_state = m_nodes.back().m_node_state;
+        m_nodes.push_back({m_nodes.front().m_node_pos_y + delta_y * TILE_SIZE, m_nodes.front().m_node_pos_x + delta_x * TILE_SIZE, state});
+        m_nodes.back().changeTexture(old_state, false);
     }
-    temp->changeTexture(W, true);
-    tail = temp;
+    m_nodes.back().changeTexture(W, true);
 }
 
 void Snake::initFood(unsigned int food_count)
@@ -162,29 +141,20 @@ void Snake::initFood(unsigned int food_count)
     else if(food_count > MAX_FOOD_COUNT) food_count = MAX_FOOD_COUNT;
     for(int i = 0; i < food_count; i++)
     {
-        m_food_vec.push_back(Food(this->head, m_food_vec));
+        m_food_vec.push_back({m_nodes, m_food_vec});
     }
 }
 
 //function that removes the tail node to make it seem like the snake is moving
 void Snake::removeTail()
 {
-    tail = tail->prev;
-    delete tail->next;
-    tail->next = NULL;
+    m_nodes.pop_back();
 }
 
 //draw function so snake can be drawn in window. Itterates through list and draws every node
 void Snake::draw(RenderTarget& target, RenderStates states) const
 {   
-    //draw each nodes circle from back to front
-    Node *temp = tail;
-    while(temp != NULL)
-    {
-        target.draw(temp->m_node);
-        temp = temp->prev;
-    }
-
+    for_each(m_nodes.begin(), m_nodes.end(), [&](Node node) {target.draw(node.m_node);});
     for_each(m_food_vec.begin(), m_food_vec.end(), [&](Food food) {target.draw(food);});
 }
 
@@ -213,9 +183,9 @@ void Snake::setChangedThisTick(bool changed)
     m_changed_this_tick_b = changed;
 }
 
-Node* Snake::getHead()
+Node& Snake::getHead()
 {
-    return head;
+    return m_nodes.front();
 }
 
 

@@ -102,14 +102,14 @@ template<typename T>
 void Slider<T>::initSlider(std::string slider_label_string)
 {
     m_slider_label_text.setString(slider_label_string);
-    m_slider_label_text.setFont(m_resource.m_game_font);
+    m_slider_label_text.setFont(m_resource.getFont("game_font"));
     m_slider_label_text.setCharacterSize(20);
     m_slider_label_text.setOutlineThickness(1);
     m_slider_label_text.setFillColor(sf::Color(140, 198, 63));
     m_slider_label_text.setOutlineColor(sf::Color::Black);
 
-    m_slider_bar_sprite.setTexture(m_resource.m_slider_bar_texture);
-    m_slider_dot_sprite.setTexture(m_resource.m_slider_dot_texture);
+    m_slider_bar_sprite.setTexture(m_resource.getTexture("slider_bar_texture"));
+    m_slider_dot_sprite.setTexture(m_resource.getTexture("slider_dot_texture"));
 
     //origin of slider bar is on the lower bound in the center
     m_slider_bar_sprite.setOrigin(0, int(m_slider_bar_sprite.getGlobalBounds().height/2));

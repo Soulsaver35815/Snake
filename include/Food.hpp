@@ -3,6 +3,7 @@
 #include <SFML/Audio.hpp>
 #include <cstdlib>
 #include <fstream>
+#include <list>
 #include "Counter.hpp"
 #include "Node.hpp"
 #include "Resources.hpp"
@@ -12,10 +13,10 @@
 class Food : public sf::Drawable
 {
     public:
-        Food(Node*, std::vector<Food>&);
+        Food(std::list<Node>& nodes, std::vector<Food>&);
         ~Food();
         //gotEaten to relocate food
-        void gotEaten(Node*, std::vector<Food>&);
+        void gotEaten(std::list<Node>& nodes, std::vector<Food>&);
         //returnRect to get bounds of food
         sf::FloatRect getFoodBounds();
     private:
@@ -28,6 +29,6 @@ class Food : public sf::Drawable
         sf::Sprite m_food_sprite;
         sf::Sound m_crunch_sound;
         
-        void setRandCoordinates(Node* head, std::vector<Food>&);
+        void setRandCoordinates(std::list<Node>& nodes, std::vector<Food>&);
         virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 };

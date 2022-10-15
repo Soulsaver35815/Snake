@@ -56,7 +56,7 @@ void Counter::setCounterPosition()
 //attributes of counter are set
 void Counter::setCounterAttributes()
 {
-    m_score_text.setFont(m_resource.m_game_font);
+    m_score_text.setFont(m_resource.getFont("game_font"));
     
     m_score_text.setCharacterSize(80);
     m_score_text.setOutlineThickness(2);

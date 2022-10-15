@@ -150,7 +150,7 @@ void Settings::initSliders()
     m_slider_music = make_shared<Slider<int>>(m_volume_music, RIGHT_SIDE_X, 260, "Music");
     m_slider_eat = make_shared<Slider<int>>(m_volume_eat, RIGHT_SIDE_X, 380, "Eat");
     m_slider_game_over = make_shared<Slider<int>>(m_volume_game_over, RIGHT_SIDE_X, 500, "Lost");
-    m_slider_click = make_shared<Slider<int>>(m_volume_click, RIGHT_SIDE_X, 620, "lick");
+    m_slider_click = make_shared<Slider<int>>(m_volume_click, RIGHT_SIDE_X, 620, "Click");
     m_slider_difficulty = make_shared<Slider<Difficulty>>(m_difficulty, LEFT_SIDE_X, 260, m_difficulty_string_arr[static_cast<int>(*m_difficulty)], 0, 4);
     m_slider_length = make_shared<Slider<int>>(m_length, LEFT_SIDE_X, 380, "Length:" + to_string(*m_length), 2, MAX_INIT_LENGTH);
     m_slider_food_count = make_shared<Slider<int>>(m_food_count, LEFT_SIDE_X, 500, "Apples:" + to_string(*m_food_count), 1, MAX_FOOD_COUNT);
@@ -161,11 +161,11 @@ void Settings::initSliders()
 //initialises all textures if settings are active
 void Settings::initTextures()
 {
-        m_menu_bounds = initButton(m_menu_sprite, m_resource.m_menu_texture, Vector2f(500, 880));
-        initButton(m_difficulty_sprite, m_resource.m_difficulty_texture, Vector2f(LEFT_SIDE_X, 160));
-        initButton(m_volume_sprite, m_resource.m_volume_texture, Vector2f(RIGHT_SIDE_X, 160));
+        m_menu_bounds = initButton(m_menu_sprite, m_resource.getTexture("menu_texture"), Vector2f(500, 880));
+        initButton(m_difficulty_sprite, m_resource.getTexture("difficulty_texture"), Vector2f(LEFT_SIDE_X, 160));
+        initButton(m_volume_sprite, m_resource.getTexture("volume_texture"), Vector2f(RIGHT_SIDE_X, 160));
         //set sound source and volume for click sound
-        m_click_sound.setBuffer(m_resource.m_click_buffer);
+        m_click_sound.setBuffer(m_resource.getSound("click_buffer"));
         m_click_sound.setVolume(*m_volume_click);
         //initialise sliders
         initSliders();

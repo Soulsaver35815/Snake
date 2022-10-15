@@ -75,12 +75,12 @@ WindowInstance Menu::menuTick(RenderWindow& renderWindow)
 
 void Menu::initTextures()
 {
-    initButton(m_logo_sprite, m_resource.m_logo_texture, Vector2f(BUTTON_X, 300));
-    m_play_bound = initButton(m_play_sprite, m_resource.m_play_texture, Vector2f(BUTTON_X, 500));
-    m_settings_bound = initButton(m_settings_sprite, m_resource.m_settings_texture, Vector2f(BUTTON_X, 680));
-    m_quit_bound = initButton(m_quit_sprite, m_resource.m_quit_texture, Vector2f(BUTTON_X, 860));
+    initButton(m_logo_sprite, m_resource.getTexture("logo_texture"), Vector2f(BUTTON_X, 300));
+    m_play_bound = initButton(m_play_sprite, m_resource.getTexture("play_texture"), Vector2f(BUTTON_X, 500));
+    m_settings_bound = initButton(m_settings_sprite, m_resource.getTexture("settings_texture"), Vector2f(BUTTON_X, 680));
+    m_quit_bound = initButton(m_quit_sprite, m_resource.getTexture("quit_texture"), Vector2f(BUTTON_X, 860));
 
-    m_click_sound.setBuffer(m_resource.m_click_buffer);
+    m_click_sound.setBuffer(m_resource.getSound("click_buffer"));
     m_click_sound.setVolume(*m_settings_values.getVolumeClick());
 }
 

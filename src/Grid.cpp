@@ -13,11 +13,11 @@ m_resource(Resources::getInstance())
         {
             if((i % 2 == 0 && j % 2 != 0) || (i % 2 != 0 && j % 2 == 0)) 
             {
-                m_grid[i][j].setTexture(m_resource.m_grid_texture_dark);
+                m_grid[i][j].setTexture(m_resource.getTexture("grid_texture_dark"));
             }
             else 
             {
-                m_grid[i][j].setTexture(m_resource.m_grid_texture_light);
+                m_grid[i][j].setTexture(m_resource.getTexture("grid_texture_light"));
             }
             m_grid[i][j].setPosition(i * TILE_SIZE, j * TILE_SIZE);
         }

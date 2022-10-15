@@ -16,7 +16,7 @@ m_game_instance(game)
     m_button_two_bound = initButton(m_button_two_sprite, button_two_texture, Vector2f(POSITION_Y, button_two_y));
     
     //initialise click sound
-    m_click_sound.setBuffer(m_resource.m_click_buffer);
+    m_click_sound.setBuffer(m_resource.getSound("click_buffer"));
     m_click_sound.setVolume(*m_settings_values.getVolumeClick());  
 }
 

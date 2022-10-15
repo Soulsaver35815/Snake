@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <vector>
+#include <list>
 #include "Node.hpp"
 #include "headerEnum.hpp"
 #include "Food.hpp"
@@ -21,7 +22,7 @@ class Snake : public sf::Drawable
         void setChangedThisTick(bool);
         bool getChangedThisTick();
         SnakeState getState();
-        Node* getHead();
+        Node& getHead();
     private:
         SnakeState m_snake_state = W;
         bool m_changed_this_tick_b = false;
@@ -29,9 +30,7 @@ class Snake : public sf::Drawable
 
         SettingsValues& m_settings_values;
 
-        //node pointer for head and tail
-        Node *tail;
-        Node *head;        
+        std::list<Node> m_nodes;   
         
         bool checkFoodBounds(sf::FloatRect&);
 

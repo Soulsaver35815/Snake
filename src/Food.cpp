@@ -4,17 +4,17 @@ using namespace sf;
 using namespace std;
 
 //food constructor
-Food::Food(Node* head, vector<Food>& food_vec):
+Food::Food(std::list<Node>& nodes, vector<Food>& food_vec):
 m_resource(Resources::getInstance()),
 m_settings_values(SettingsValues::getInstance())
 {
     //set attributes for crunch sound
-    m_crunch_sound.setBuffer(m_resource.m_crunch_buffer);
+    m_crunch_sound.setBuffer(m_resource.getSound("crunch_buffer"));
     m_crunch_sound.setVolume(*m_settings_values.getVolumeEat());
     //set attributes of food sprite
-    m_food_sprite.setTexture(m_resource.m_food_texture);
+    m_food_sprite.setTexture(m_resource.getTexture("food_texture"));
     //food gets spawned at random position in window
-    setRandCoordinates(head, food_vec);
+    setRandCoordinates(nodes, food_vec);
 }
 
 Food::~Food()
@@ -35,21 +35,20 @@ FloatRect Food::getFoodBounds()
 }
 
 //function is called when food gets eaten
-void Food::gotEaten(Node* head, vector<Food>& food_vec)
+void Food::gotEaten(list<Node>& nodes, vector<Food>& food_vec)
 {
     //crunch sound
     m_crunch_sound.play();
 
-    setRandCoordinates(head, food_vec);
+    setRandCoordinates(nodes, food_vec);
 }
 
 //set coordinates for new food
-void Food::setRandCoordinates(Node* head, vector<Food>& food_vec)
+void Food::setRandCoordinates(list<Node>& nodes, vector<Food>& food_vec)
 {
     //food bound of new food location and body bound for snake
     FloatRect body_bound;
     bool collition;
-    Node* temp;
     
     //do while checks once if new food coordinates collide with snake(if yes while loop until not)
     do
@@ -63,23 +62,12 @@ void Food::setRandCoordinates(Node* head, vector<Food>& food_vec)
         //coordinates get passed to sprite
         m_food_sprite.setPosition(m_pos_x, m_pos_y);
 
-        //temp pointer starts on head node, collition is set to false
-        temp = head;
         collition = false;
         //while loop itterates through whole snake
-        while(temp != nullptr)
-        {
-            //body bound gets set to current node bound
-            body_bound = temp->m_node.getGlobalBounds();
-            //when new food and node collide variable is set to true, new coordinates are set and while loop breaks
-            if(getFoodBounds().intersects(body_bound)) 
-            {
-                collition = true;
-                break;
-            }    
-            //pointer points to next node
-            temp = temp->next;
-        }
+
+        for_each(nodes.begin(), nodes.end(), 
+            [&](Node& node){if(getFoodBounds().intersects(node.m_node.getGlobalBounds())) collition = true;});
+
         int col_count = 0;
         for_each(food_vec.begin(), food_vec.end(), 
             [&](Food& food)
@@ -91,6 +79,6 @@ void Food::setRandCoordinates(Node* head, vector<Food>& food_vec)
         if(col_count >= 2)
             collition = true;
     //loop itterates as long as collition is true        
-    }while(collition == true);  
+    }while(collition);  
 }
 
